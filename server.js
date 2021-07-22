@@ -1,13 +1,9 @@
-const express = require('express');
-// Import and require mysql2
-const mysql = require('mysql2');
+const mysql = require("mysql");
+const inquirer = require("inquirer");
 
 const PORT = process.env.PORT || 3001;
-const app = express();
 
-// Express middleware
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
+
 
 // Connect to database
 const db = mysql.createConnection(
@@ -22,7 +18,7 @@ const db = mysql.createConnection(
     console.log(`Connected to the inventory_db database.`)
 );
 
-// Query database
+
 let deletedRow = 2;
 
 db.query(`DELETE FROM books WHERE id = ?`, deletedRow, (err, result) => {
@@ -32,12 +28,54 @@ db.query(`DELETE FROM books WHERE id = ?`, deletedRow, (err, result) => {
     console.log(result);
 });
 
-// Query database
-db.query('SELECT * FROM books', function (err, results) {
-    console.log(results);
-});
-
-// Default response for any other request (Not Found)
-app.use((req, res) => {
-    res.status(404).end();
-});
+function options() {
+    inquirer
+        .prompt({
+            name: 'action',
+            type: 'list',
+            message: 'Welcome to our employee database! What would you like to do?',
+            choices: [
+                'View all employees',
+                'View all departments',
+                'View all roles',
+                'Add an employee',
+                'Add a department',
+                'Add a role',
+                'Update employee role',
+                'Delete an employee',
+                'EXIT'
+            ]
+        }).then(function (answer) {
+            switch (answer.action) {
+                case 'View all employees':
+                    viewEmployees();
+                    break;
+                case 'View all departments':
+                    viewDepartments();
+                    break;
+                case 'View all roles':
+                    viewRoles();
+                    break;
+                case 'Add an employee':
+                    addEmployee();
+                    break;
+                case 'Add a department':
+                    addDepartment();
+                    break;
+                case 'Add a role':
+                    addRole();
+                    break;
+                case 'Update employee role':
+                    updateRole();
+                    break;
+                case 'Delete an employee':
+                    deleteEmployee();
+                    break;
+                case 'EXIT':
+                    exitApp();
+                    break;
+                default:
+                    break;
+            }
+        })
+};
